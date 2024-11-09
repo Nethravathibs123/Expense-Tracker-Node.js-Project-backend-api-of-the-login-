@@ -1,11 +1,10 @@
 
+
 const signUpForm = document.getElementById("sign-up-form");
 
 const errorMsg = document.getElementById('error');
 
 let users = [];
-
-
 
 signUpForm.addEventListener('submit', async(event) => {
     event.preventDefault();
@@ -20,17 +19,28 @@ signUpForm.addEventListener('submit', async(event) => {
         document.getElementById('username').value = "";
         document.getElementById('email').value = "";
         document.getElementById('password').value = "";
+        const data = await response.json();
 
+        if (response.status === 201) {
+            document.getElementById('message').textContent = 'User registered successfully.';
+        } else if (response.status === 409) {
+            document.getElementById('message').textContent = 'User already exists.';
+        } else {
+            document.getElementById('message').textContent = 'An error occurred.';
+        }
         errorMsg.textContent = '';
     }
-    catch(error){
-        if(error.response && (error.response.status === 409 || error.response.status === 404)) {
-            document.getElementById('email').value = "";
-            document.getElementById('password').value = "";
+    catch(error) {
+        document.getElementById('username').value = "";
+        document.getElementById('email').value = "";
+        document.getElementById('password').value = "";
+        
+        if (error.response && error.response.data && error.response.data.message) {
             errorMsg.textContent = `Error: ${error.response.data.message}`;
         } else {
-            console.log('Error adding user: ',error);
-            errorMsg.textContent = '';
+            console.log('Error adding user:', error);
+            errorMsg.textContent = 'An unexpected error occurred.';
         }
     }
+    
 });
